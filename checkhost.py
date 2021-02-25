@@ -3,11 +3,12 @@ from subprocess import Popen, PIPE
 from discord.ext import commands, tasks
 import sys, os, socket, json
 import time
+import requests
 import subprocess
 
 token = "NEKO NEKO" #CHNAGE ME!!!
 
-client = commands.Bot(command_prefix = 'neko ', case_insensitive=True)
+client = commands.Bot(command_prefix = '!n', case_insensitive=True)
 
 client.remove_command("help")
 
@@ -24,9 +25,9 @@ client.remove_command("help")
 #  Message me @lolinekos#7777 on discord. This didn't take
 #  more than 30 minutes to make so there most likely is some
 #  issues but I've fixed all that I've seen.
-#  , ps I don't use requests lol
 
-@client.command()
+nodes = "10" #number of checkhost requests
+
 @client.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandOnCooldown):
@@ -65,28 +66,15 @@ async def ping(ctx, ip):
 	try:
 		socket.gethostbyname(ip)
 		await loading(ctx)
-		curlres = '''curl -s -H "Accept: application/json" \
-  https://check-host.net/check-ping?host='''+ip+'''&max_nodes=3'''#+nodes
-		bot_filein = curlres
-		pipe = Popen(bot_filein, shell=True, stdout=PIPE).stdout
-		output = pipe.read()
-		site_shit = output.decode('utf-8')
-		print(site_shit)
-
-		j = json.loads(site_shit)
-
+		jsonfood = requests.get('https://check-host.net/check-ping?host='+ip+'&max_nodes='+nodes,headers={'Accept': 'application/json'})
+		jsonfood = jsonfood.text
+		j = json.loads(jsonfood)
 		req_id = j["request_id"]
 		time.sleep(10)
-
-		curlres = '''curl -s -H "Accept: application/json" \
-  https://check-host.net/check-result/'''+req_id
-
-		bot_filein = curlres
-		pipe = Popen(bot_filein, shell=True, stdout=PIPE).stdout
-		output = pipe.read()
-		site_shit = output.decode('utf-8')
-
-		j = json.loads(site_shit)
+    
+		jsonfood = requests.get('https://check-host.net/check-result/'+req_id,headers={'Accept': 'application/json'})
+		jsonfood = jsonfood.text
+		j = json.loads(jsonfood)
 		embed=discord.Embed(title="__**Neko**__", description=f"ICMP response check-host result on {ip}", color=0x8000ff)
 		embed.set_thumbnail(url="https://check-host.net/checkhost-favicon.png")
 		#print(site_shit)
@@ -110,7 +98,7 @@ async def ping(ctx, ip):
 			flagemoji = ":flag_"+x[0]+x[1]+":"
 			embed.add_field(name=flagemoji+" "+x, value='RESULTS: '+emoji+' '+str(timeout)+'/4', inline=True)
 			#print('RESULTS: '+str(timeout)+'/4')
-		embed.set_footer(text=f"requested by {ctx.author.name}")
+		embed.set_footer(text=f"requested by {ctx.author.name} | https://check-host.net/check-result/"+req_id)
 		await ctx.send(embed=embed)
 	except socket.gaierror:
 		await ctx.send(f"{ip} is invaid please retry")
@@ -127,28 +115,17 @@ async def tcping(ctx, ip, port="80"):
 		lmao = int(port)
 		socket.gethostbyname(ip)
 		await loading(ctx)
-		curlres = '''curl -s -H "Accept: application/json" \
-  https://check-host.net/check-tcp?host='''+ip+":"+port+'''&max_nodes=3'''#+nodes
-		bot_filein = curlres
-		pipe = Popen(bot_filein, shell=True, stdout=PIPE).stdout
-		output = pipe.read()
-		site_shit = output.decode('utf-8')
-		print(site_shit)
-
-		j = json.loads(site_shit)
+   
+		jsonfood = requests.get('https://check-host.net/check-tcp?host='+ip+":"+port+'&max_nodes='+nodes,headers={'Accept': 'application/json'}).text
+		jsonfood = jsonfood.text		
+		j = json.loads(jsonfood)
 
 		req_id = j["request_id"]
 		time.sleep(10)
-
-		curlres = '''curl -s -H "Accept: application/json" \
-  https://check-host.net/check-result/'''+req_id
-
-		bot_filein = curlres
-		pipe = Popen(bot_filein, shell=True, stdout=PIPE).stdout
-		output = pipe.read()
-		site_shit = output.decode('utf-8')
-
-		j = json.loads(site_shit)
+    
+		jsonfood = requests.get('https://check-host.net/check-result/'+req_id,headers={'Accept': 'application/json'})
+		jsonfood = jsonfood.text
+		j = json.loads(jsonfood)
 		embed=discord.Embed(title="__**Neko**__", description=f"TCP response check-host result on {ip}", color=0x8000ff)
 		embed.set_thumbnail(url="https://check-host.net/checkhost-favicon.png")
 		print(site_shit)
@@ -170,7 +147,7 @@ async def tcping(ctx, ip, port="80"):
 			flagemoji = ":flag_"+x[0]+x[1]+":"
 			embed.add_field(name=flagemoji+" "+x, value='RESULTS: '+emoji+' '+str(ptimeout), inline=True)
 			#print('RESULTS: '+str(timeout)+'/4')
-		embed.set_footer(text=f"requested by {ctx.author.name}")
+		embed.set_footer(text=f"requested by {ctx.author.name} | https://check-host.net/check-result/"+req_id)
 		await ctx.send(embed=embed)
 	except socket.gaierror:
 		await ctx.send(f"{ip} is invaid please retry")
@@ -181,31 +158,18 @@ async def http(ctx, ip):
 	try:
 		socket.gethostbyname(ip)
 		await loading(ctx)
-		curlres = '''curl -s -H "Accept: application/json" \
-  https://check-host.net/check-http?host='''+ip+'''&max_nodes=3'''#+nodes
-		bot_filein = curlres
-		pipe = Popen(bot_filein, shell=True, stdout=PIPE).stdout
-		output = pipe.read()
-		site_shit = output.decode('utf-8')
-		print(site_shit)
-
-		j = json.loads(site_shit)
+		jsonfood = requests.get('https://check-host.net/check-http?host='+ip+'&max_nodes='+nodes,headers={'Accept': 'application/json'})
+		jsonfood = jsonfood.text
+		j = json.loads(jsonfood)
 
 		req_id = j["request_id"]
 		time.sleep(10)
-
-		curlres = '''curl -s -H "Accept: application/json" \
-  https://check-host.net/check-result/'''+req_id
-
-		bot_filein = curlres
-		pipe = Popen(bot_filein, shell=True, stdout=PIPE).stdout
-		output = pipe.read()
-		site_shit = output.decode('utf-8')
-
-		j = json.loads(site_shit)
+    
+		jsonfood = requests.get('https://check-host.net/check-result/'+req_id,headers={'Accept': 'application/json'})
+		jsonfood = jsonfood.text
+		j = json.loads(jsonfood)
 		embed=discord.Embed(title="__**Neko**__", description=f"HTTP response check-host result on {ip}", color=0x8000ff)
 		embed.set_thumbnail(url="https://check-host.net/checkhost-favicon.png")
-		print(site_shit)
 		for x in j :
 			timeout = 0
 			#print(x)
@@ -232,7 +196,7 @@ async def http(ctx, ip):
 			flagemoji = ":flag_"+x[0]+x[1]+":"
 			embed.add_field(name=flagemoji+" "+x, value='RESULTS: '+str(ptimeout), inline=True)
 			#print('RESULTS: '+str(timeout)+'/4')
-		embed.set_footer(text=f"requested by {ctx.author.name}")
+		embed.set_footer(text=f"requested by {ctx.author.name} | https://check-host.net/check-result/"+req_id")
 		await ctx.send(embed=embed)
 	except socket.gaierror:
 		await ctx.send(f"{ip} is invaid please retry")
