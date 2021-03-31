@@ -196,7 +196,7 @@ async def http(ctx, ip):
 			flagemoji = ":flag_"+x[0]+x[1]+":"
 			embed.add_field(name=flagemoji+" "+x, value='RESULTS: '+str(ptimeout), inline=True)
 			#print('RESULTS: '+str(timeout)+'/4')
-		embed.set_footer(text=f"requested by {ctx.author.name} | https://check-host.net/check-result/"+req_id")
+		embed.set_footer(text=f"requested by {ctx.author.name} | https://check-host.net/check-result/"+req_id)
 		await ctx.send(embed=embed)
 	except socket.gaierror:
 		await ctx.send(f"{ip} is invaid please retry")
