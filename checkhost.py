@@ -22,7 +22,7 @@ client.remove_command("help")
 #                                                            
 #  Discord.py script using the checkhost JSON api it's very 
 #  Messy so bear with me. If you have any questions please
-#  Message me @lolinekos#7777 on discord. This didn't take
+#  Message me @bleach | lolinekos#0001 on discord. This didn't take
 #  more than 30 minutes to make so there most likely is some
 #  issues but I've fixed all that I've seen.
 
