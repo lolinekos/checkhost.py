@@ -1,12 +1,11 @@
-import discord
+import discord, asyncio
 from subprocess import Popen, PIPE
 from discord.ext import commands, tasks
 import sys, os, socket, json
-import time
 import requests
 import subprocess
 
-token = "NEKO NEKO" #CHNAGE ME!!!
+token = "ODI2OTIxNTcxNDE5MTYwNjg3.YGTgug.kk0FtWous1_ShWd0C0_vXqubIGs" #CHNAGE ME!!!
 
 client = commands.Bot(command_prefix = '!n', case_insensitive=True)
 
@@ -33,10 +32,10 @@ async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandOnCooldown):
         await ctx.send('This command is on cooldown.  Please wait %.2fs' % error.retry_after)
     elif isinstance(error, commands.errors.MissingPermissions):
-        embed=discord.Embed(description="You do not have permissions to use this command", color=0x00aaff)
+        embed=discord.Embed(description="You do not have permissions to use this command", color=0x8000ff)
         await ctx.send(embed=embed)
     elif isinstance(error, commands.errors.MissingRequiredArgument):
-        embed=discord.Embed(description="Missing an arg!", color=0x00aaff)
+        embed=discord.Embed(description="Missing an arg!", color=0x8000ff)
         await ctx.send(embed=embed)
 
 @client.command()
@@ -70,7 +69,7 @@ async def ping(ctx, ip):
 		jsonfood = jsonfood.text
 		j = json.loads(jsonfood)
 		req_id = j["request_id"]
-		time.sleep(10)
+		await asyncio.sleep(10)	
     
 		jsonfood = requests.get('https://check-host.net/check-result/'+req_id,headers={'Accept': 'application/json'})
 		jsonfood = jsonfood.text
@@ -116,19 +115,18 @@ async def tcping(ctx, ip, port="80"):
 		socket.gethostbyname(ip)
 		await loading(ctx)
    
-		jsonfood = requests.get('https://check-host.net/check-tcp?host='+ip+":"+port+'&max_nodes='+nodes,headers={'Accept': 'application/json'}).text
-		jsonfood = jsonfood.text		
+		jsonfood = requests.get('https://check-host.net/check-tcp?host='+ip+":"+port+'&max_nodes='+nodes,headers={'Accept': 'application/json'}).text	
 		j = json.loads(jsonfood)
 
 		req_id = j["request_id"]
-		time.sleep(10)
+		await asyncio.sleep(10)	
     
 		jsonfood = requests.get('https://check-host.net/check-result/'+req_id,headers={'Accept': 'application/json'})
 		jsonfood = jsonfood.text
 		j = json.loads(jsonfood)
-		embed=discord.Embed(title="__**Neko**__", description=f"TCP response check-host result on {ip}", color=0x8000ff)
+		embed=discord.Embed(title="__**Neko**__", description=f"TCP response check-host result on {ip}:{port}", color=0x8000ff)
 		embed.set_thumbnail(url="https://check-host.net/checkhost-favicon.png")
-		print(site_shit)
+		ptimeout = "Error "
 		for x in j :
 			timeout = 0
 			#print(x)
@@ -137,6 +135,7 @@ async def tcping(ctx, ip, port="80"):
 					if 'time' in y:
 						timeout = timeout + 1
 						ptimeout = j[x][0]["time"]
+						ptimeout = str(int(ptimeout*1000))
 			except TypeError:
 				timeout = 0
 			if timeout == 1:
@@ -145,7 +144,7 @@ async def tcping(ctx, ip, port="80"):
 				emoji = ":x:"
 			x = x.replace('.check-host.net', '')
 			flagemoji = ":flag_"+x[0]+x[1]+":"
-			embed.add_field(name=flagemoji+" "+x, value='RESULTS: '+emoji+' '+str(ptimeout), inline=True)
+			embed.add_field(name=flagemoji+" "+x, value=emoji+' '+str(ptimeout)+'ms', inline=True)
 			#print('RESULTS: '+str(timeout)+'/4')
 		embed.set_footer(text=f"requested by {ctx.author.name} | https://check-host.net/check-result/"+req_id)
 		await ctx.send(embed=embed)
@@ -163,7 +162,7 @@ async def http(ctx, ip):
 		j = json.loads(jsonfood)
 
 		req_id = j["request_id"]
-		time.sleep(10)
+		await asyncio.sleep(10)	
     
 		jsonfood = requests.get('https://check-host.net/check-result/'+req_id,headers={'Accept': 'application/json'})
 		jsonfood = jsonfood.text
@@ -175,27 +174,22 @@ async def http(ctx, ip):
 			#print(x)
 			try:
 				for y in j[x][0]:
-					if int(j[x][0][3]) > 399:
-						timeout = 0
-					if int(j[x][0][3]) < 399 and int(j[x][0][3]) > 300:
-						timeout = 2
-					if j[x][0][3] == "200":
-						timeout = 1	
+					emoji = ":x:"
+					if 100 <= int(j[x][0][3]) <= 199:
+						emoji = ":globe_with_meridians: "
+					if 200 <= int(j[x][0][3]) <= 299:
+						emoji = ":white_check_mark:"
+					if 300 <= int(j[x][0][3]) <= 399:
+						emoji = ":warning:"
+					if 400 <= int(j[x][0][3]) <= 599:
+						emoji = ":x:"
 					ptimeout = j[x][0][2]
-					timeout = 1
 			except TypeError:
-				timeout = 0
-				ptimeout = "No such device or address"
-			if timeout == 1:
-				emoji = ":white_check_mark:"
-			if timeout == 0 :
 				emoji = ":x:"
-			if timeout == 2:
-				emoji = ":warning:"
+				ptimeout = "Failed to get info"
 			x = x.replace('.check-host.net', '')
 			flagemoji = ":flag_"+x[0]+x[1]+":"
-			embed.add_field(name=flagemoji+" "+x, value='RESULTS: '+str(ptimeout), inline=True)
-			#print('RESULTS: '+str(timeout)+'/4')
+			embed.add_field(name=flagemoji+" "+x, value=emoji+' '+str(ptimeout), inline=True)
 		embed.set_footer(text=f"requested by {ctx.author.name} | https://check-host.net/check-result/"+req_id)
 		await ctx.send(embed=embed)
 	except socket.gaierror:
@@ -203,7 +197,7 @@ async def http(ctx, ip):
 
 @client.event
 async def on_ready():
-    await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=f'my master | neko help'))
+    await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=f'my master | !nhelp'))
     print('''
           \x1b[38;5;197m╔╗╔┌─┐┬┌─┌─┐  ╦ ╔╦╗╔╦╗
           \x1b[38;5;198m║║║├┤ ├┴┐│ │  ║  ║  ║║
