@@ -5,7 +5,7 @@ import sys, os, socket, json
 import requests
 import subprocess
 
-token = "ODI2OTIxNTcxNDE5MTYwNjg3.YGTgug.kk0FtWous1_ShWd0C0_vXqubIGs" #CHNAGE ME!!!
+token = "NEKO NEKO" #CHNAGE ME!!!
 
 client = commands.Bot(command_prefix = '!n', case_insensitive=True)
 
